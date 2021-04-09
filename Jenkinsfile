@@ -22,7 +22,7 @@ pipeline {
       steps {
         echo 'Deploying only because of code commit...'
         echo 'Deploying to  dev environent....'
-        bat 'mvn package deploy -DmuleDeploy -Dmule.version=4.3.0 -Danypoint.username=navin0990 -Danypoint.password=Navin@0990 -Denv=Sandbox -Dappname=helloworld -Dbusiness=CTS -DvCore=Micro -Dworkers=1'
+        bat 'mvn package deploy -DmuleDeploy -Dmule.version=4.3.0 -Danypoint.username=navin0990 -Danypoint.password=Navin@0990 -Denv=Sandbox -Dappname=helloworldpipeline -Dbusiness=CTS -DvCore=Micro -Dworkers=1'
       }
 	  
 	  
