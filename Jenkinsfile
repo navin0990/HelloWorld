@@ -1,30 +1,47 @@
 pipeline {
+
   agent any
+  environment {
+    //adding a comment for the commit test
+    DEPLOY_CREDS = credentials('anypoint.credentials')
+    MULE_VERSION = '4.3.0'
+    BG = "CTS"
+    WORKER = "Micro"
+  }
   stages {
-    stage('Build Application') { 
+    stage('Build') {
       steps {
-        bat 'mvn clean install'
+            bat 'mvn -B -U -e -V clean -DskipTests package'
       }
     }
- 	stage('Test') { 
+
+    stage('Test') {
       steps {
-        echo 'Test Appplication...' 
-        bat 'mvn test'
+		  echo 'Test Appplication...'
+          bat "mvn test"
       }
     }
- 	
-   
-	stage('Deploy CloudHub') { 
+
+     stage('Deploy Development') {
       environment {
-        ANYPOINT_CREDENTIALS = credentials('anypoint.credentials')
+        ENVIRONMENT = 'Sandbox'
+        APP_NAME = 'HelloWorldPipeline'
       }
-            
       steps {
-        echo 'Deploying only because of code commit...'
-        echo 'Deploying to  dev environent....'
-        bat 'mvn package deploy -DmuleDeploy -Dusername=${ANYPOINT_CREDENTIALS_USR} -Dpassword=${ANYPOINT_CREDENTIALS_PSW} -DworkerType=Micro -Dworkers=1 -Dregion=us-east-2'
+            bat 'mvn -U -V -e -B -DskipTests deploy -DmuleDeploy -Dmule.version="%MULE_VERSION%" -Danypoint.username="%DEPLOY_CREDS_USR%" -Danypoint.password="%DEPLOY_CREDS_PSW%" -DapplicationName="%APP_NAME%" -Denvironment="%ENVIRONMENT%" -Dbg="%BG%" -Dworker="%WORKER%"'
+      }    }
+    stage('Deploy Production') {
+      environment {
+        ENVIRONMENT = 'Design'
+        APP_NAME = 'HelloWorldPipeline'
       }
-	  
-	}
+      steps {
+            bat 'mvn -U -V -e -B -DskipTests deploy -DmuleDeploy -Dmule.version="%MULE_VERSION%" -Danypoint.username="%DEPLOY_CREDS_USR%" -Danypoint.password="%DEPLOY_CREDS_PSW%" -DapplicationName="%APP_NAME%" -Denvironment="%ENVIRONMENT%" -Dbg="%BG%" -Dworker="%WORKER%"'
+      }
+    }
+  }
+
+  tools {
+    maven 'M3'
   }
 }
